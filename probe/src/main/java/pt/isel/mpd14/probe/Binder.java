@@ -1,22 +1,17 @@
 package pt.isel.mpd14.probe;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
+
+import static pt.isel.mpd14.probe.util.SneakyUtils.throwAsRTException;
 
 public class Binder {
 
-    static BinderMember bindM;
+    private final BindMember [] bms;
 
-    public Binder(BinderMember bindM) {
-        if(bindM == null){
-            throw new IllegalArgumentException();
-        }
-        Binder.bindM = bindM;
+    public Binder(BindMember...bms) {
+        this.bms = bms;
     }
 
     public static Map<String, Object> getFieldsValues(Object o)
@@ -30,19 +25,29 @@ public class Binder {
         return res;
     }
 
-    public static <T> boolean bindTo(Class<T> klass, Map<String, Object> vals)
-            throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return bindM.bind(klass, vals);
+    public <T> T bindTo(Class<T> klass, Map<String, Object> vals)
+    {
+        try {
+            if (klass == null || vals == null) {
+                throw new IllegalArgumentException();
+            }
+            T target = klass.newInstance();
+            for (Map.Entry<String, Object> e : vals.entrySet()) {
+                for (BindMember bm : bms) {
+                    if(bm.bind(target, e.getKey(), e.getValue()))
+                        break;
+                }
 
+            }
+            return target;
+        } catch (InstantiationException | IllegalAccessException ex) {
+            throwAsRTException(ex);
+        }
+        throw new IllegalStateException();
     }
 
-    public static <T> T bindToFieldsAndProperties(Class<T> klass, Map<String, Object> vals)
-            throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        return new BinderPropsAndFields().bind(klass, vals);
-
-    }
 }
+
 class WrapperUtilites {
 
     final static Map<Class<?>, Class<?>> wrappers = new HashMap<>();
