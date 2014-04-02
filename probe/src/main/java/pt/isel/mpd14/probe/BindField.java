@@ -23,10 +23,10 @@ import static pt.isel.mpd14.probe.util.SneakyUtils.throwAsRTException;
  *
  * @author Miguel Gamboa at CCISEL
  */
-public class BindField implements BindMember {
+public class BindField<T> implements BindMember<T> {
 
     @Override
-    public <T> boolean bind(T target, String name, Object v) {
+    public boolean bind(T target, String name, Object v) {
         try {
             Field[] fields = target.getClass().getDeclaredFields();
             for (Field f : fields) {

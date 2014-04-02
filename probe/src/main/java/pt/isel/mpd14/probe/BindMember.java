@@ -20,8 +20,8 @@ package pt.isel.mpd14.probe;
  *
  * @author Miguel Gamboa at CCISEL
  */
-public interface BindMember {
+public interface BindMember<T> {
 
-    public <T> boolean bind(T target, String name, Object v);
+    public boolean bind(T target, String name, Object v);
 
 }

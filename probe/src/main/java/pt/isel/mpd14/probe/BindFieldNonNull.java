@@ -20,15 +20,10 @@ package pt.isel.mpd14.probe;
  *
  * @author Miguel Gamboa at CCISEL
  */
-public class BindFieldNonNull extends BindField{
+public class BindFieldNonNull extends BindNonNull{
 
-    @Override
-    public <T> boolean bind(T target, String name, Object v) {
-        if(v == null)
-            return false;
-
-        return super.bind(target, name, v);
-
+    public BindFieldNonNull() {
+        super(new BindField());
     }
 
 }

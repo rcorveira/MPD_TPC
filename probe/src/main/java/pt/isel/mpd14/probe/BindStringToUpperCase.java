@@ -18,20 +18,20 @@ package pt.isel.mpd14.probe;
 
 /**
  *
- * @author Miguel Gamboa at CCISEL
+ * @author Rui Corveira
  */
-public class BindNonNull<T> implements BindMember<T> {
+public class BindStringToUpperCase<T> implements BindMember<T> {
 
     private final BindMember bindMember;
 
-    public BindNonNull(BindMember bindMember) {
-        if(bindMember instanceof BindNonNull)
-            throw new IllegalArgumentException("BindMember cannot be an instance of BindNonNull");
+    public BindStringToUpperCase(BindMember bindMember) {
+        if(bindMember instanceof BindStringToUpperCase)
+            throw new IllegalArgumentException("BindMember cannot be an instance of BindStringToUpperCase");
         this.bindMember = bindMember;
     }
 
     /**
-     * bind - Default implementation - Acts on Non Null Values Only
+     * bind - Default implementation - Convert Strings to UpperCase
      *
      * @param target
      * @param name
@@ -39,10 +39,16 @@ public class BindNonNull<T> implements BindMember<T> {
      * @return
      */
     public boolean bind(T target, String name, Object v) {
-        if (v == null) {
+        if (v == null || !(v.getClass().getSimpleName().equalsIgnoreCase("string"))) {
             return false;
         }
-        return bindMember.bind(target, name, v);
+
+        return bindMember.bind(target, name, convertToUpperCase(v));
+
+    }
+
+    private Object convertToUpperCase(Object o){
+        return ((String)o).toUpperCase();
 
     }
 

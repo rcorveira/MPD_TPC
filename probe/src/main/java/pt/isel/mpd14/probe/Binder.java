@@ -3,14 +3,15 @@ package pt.isel.mpd14.probe;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-
 import static pt.isel.mpd14.probe.util.SneakyUtils.throwAsRTException;
 
-public class Binder {
+public class Binder<T>{
 
-    private final BindMember [] bms;
+    private final Class<T> targetKlass;
+    private final BindMember<T> [] bms;
 
-    public Binder(BindMember...bms) {
+    public Binder(Class<T> k, BindMember<T>...bms) {
+        this.targetKlass = k;
         this.bms = bms;
     }
 
@@ -25,13 +26,13 @@ public class Binder {
         return res;
     }
 
-    public <T> T bindTo(Class<T> klass, Map<String, Object> vals)
+    public T bindTo(Map<String, Object> vals)
     {
         try {
-            if (klass == null || vals == null) {
+            if (vals == null) {
                 throw new IllegalArgumentException();
             }
-            T target = klass.newInstance();
+            T target = targetKlass.newInstance();
             for (Map.Entry<String, Object> e : vals.entrySet()) {
                 for (BindMember bm : bms) {
                     if(bm.bind(target, e.getKey(), e.getValue()))

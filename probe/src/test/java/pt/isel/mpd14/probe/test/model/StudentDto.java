@@ -30,7 +30,7 @@ public class StudentDto {
     public StudentDto() {
         this.id = 0;
         this.birthDate = null;
-        this.name = null;
+        this.name = "DEFAULT NAME";
     }
 
     public StudentDto(int id, String birthDate, String name) {
@@ -39,11 +39,11 @@ public class StudentDto {
         this.name = name;
     }
 
-    
-    
+
+
     @Override
     public String toString() {
         return "StudentDto{" + "id=" + id + ", birthDate=" + birthDate + ", name=" + name + '}';
     }
-    
+
 }

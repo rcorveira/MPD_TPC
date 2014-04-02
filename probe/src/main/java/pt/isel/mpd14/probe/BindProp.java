@@ -18,30 +18,44 @@ package pt.isel.mpd14.probe;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-
 import static pt.isel.mpd14.probe.util.SneakyUtils.throwAsRTException;
 
 /**
- *
  * @author Miguel Gamboa at CCISEL
  */
-public class BindProp implements BindMember {
+public class BindProp<T> implements BindMember<T> {
+
+    private final Map<String, Method> setters = new HashMap<>();
+
+    public BindProp(Class<T> targetKlass) {
+
+        Method[] ms = targetKlass.getMethods();
+        for (Method m : ms) {
+            String mName = m.getName();
+            if (!mName.startsWith("set")) {
+                continue;
+            }
+            if (!(m.getReturnType() == void.class)) {
+                continue;
+            }
+            Class<?>[] paramsKlasses = m.getParameterTypes();
+            if (paramsKlasses.length != 1) {
+                continue;
+            }
+            setters.put(m.getName().substring(3).toLowerCase(), m);
+        }
+    }
 
     @Override
-    public <T> boolean bind(T target, String key, Object v) {
-        Method[] ms = target.getClass().getMethods();
+    public boolean bind(T target, String key, Object v) {
         try {
-            for (Method m : ms) {
-                String mName = m.getName();
-                if (!mName.equalsIgnoreCase("set" + key)) {
-                    continue;
-                }
-                Class<?>[] paramsKlasses = m.getParameterTypes();
-                if (paramsKlasses.length != 1) {
-                    continue;
-                }
-                Class<?> propType = WrapperUtilites.toWrapper(paramsKlasses[0]);
+            Method m = setters.get(key.toLowerCase());
+            if (m != null) {
+                Class<?> propType = WrapperUtilites.toWrapper(m.getParameterTypes()[0]);
                 if (propType.isAssignableFrom(v.getClass())) {
                     m.setAccessible(true);
                     m.invoke(target, v);
@@ -54,6 +68,5 @@ public class BindProp implements BindMember {
         return false;
 
     }
-
 
 }
